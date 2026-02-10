@@ -764,6 +764,13 @@
   \end{alertblock}
 \end{frame}
 
+\begin{frame}[plain]
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.9\textheight,keepaspectratio]{images/parallelism.png}
+  \end{figure}
+\end{frame}
+
 \begin{frame}{Data Parallelism (DP)}
   \textbf{How it works:}
   \begin{itemize}
@@ -1310,6 +1317,14 @@ for step, (input_data, target_data) in enumerate(dataloader):
   \begin{alertblock}{생활 지혜}
     Temperature는 Top-p sampling에만 실질적 영향! Greedy/Beam/Top-K에는 순서가 안 바뀜.
   \end{alertblock}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.9\textheight,keepaspectratio]{images/temperature.png}
+    \caption*{\textbf{Temperature Visualization}: How temperature affects token probability distribution}
+  \end{figure}
 \end{frame}
 
 \begin{frame}{Guided / Structured Generation}

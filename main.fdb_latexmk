@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1770753720.91787 "/home/ngseo/paper/newbie/main.tex" "main.pdf" "main" 1770753725.2128 0
+["pdflatex"] 1770754319.27704 "/home/ngseo/paper/newbie/main.tex" "main.pdf" "main" 1770754323.66216 0
   "/etc/texmf/web2c/texmf.cnf" 1760778347.91575 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/ngseo/paper/newbie/main.tex" 1770753716.30982 47349 49bdf48f1c92c69f00fd86b9aeef173d ""
+  "/home/ngseo/paper/newbie/main.tex" 1770754318.94219 47827 6fa3889323450cce908abd7d342975b4 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcss0900.tfm" 1136768653 1536 ba0169ee8bc017972775b933313cbbb0 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcss1000.tfm" 1136768653 1536 293044035fd171bb1d18cf655049b101 ""
@@ -364,12 +364,14 @@
   "images/maf-efficiency.png" 1770731875.32444 78662 1d11eb5858834f8169ec688b4660d9fb ""
   "images/nvidia-a100-matmul-tflops.png" 1770731873.99683 164527 ed7834bd6acadfe30fc8560ca9fd462b ""
   "images/nvidia-a100-spec.png" 1770731870.35891 134749 d521a54d3b74f590ed94469cf8486a1f ""
-  "main.aux" 1770753724.99634 14215 bbf908b2708a5d19e24cbf4cedc571e0 "pdflatex"
-  "main.nav" 1770753724.99799 9399 7ecff47c2e05b774ea92c664bd3f75d3 "pdflatex"
-  "main.out" 1770753724.99745 1551 7af341501014c1d616753e4d2c7ade54 "pdflatex"
-  "main.tex" 1770753716.30982 47349 49bdf48f1c92c69f00fd86b9aeef173d ""
-  "main.toc" 1770753724.99799 659 ac22bfce4bb2db70fb52d549f58df5c1 "pdflatex"
-  "main.vrb" 1770753724.26736 941 917786b259502d3b1da4efcd01c57fc4 "pdflatex"
+  "images/parallelism.png" 1770753999.20706 113103 b5420c668e54c306e8c73272bb3ff69d ""
+  "images/temperature.png" 1770754051.41023 66969 3bdc6572499e8077e6d083761b5927f3 ""
+  "main.aux" 1770754323.4374 14473 0e12ad3cc9d47fd9e478857c9733f0bd "pdflatex"
+  "main.nav" 1770754323.43896 9585 0ec9a9bbd60e9da9e0a638675c11ab04 "pdflatex"
+  "main.out" 1770754323.4383 1551 f9644496c404ee6eb23e1e595566f5e4 "pdflatex"
+  "main.tex" 1770754318.94219 47827 6fa3889323450cce908abd7d342975b4 ""
+  "main.toc" 1770754323.43896 659 41dad0402e1baba31444742970f8789f "pdflatex"
+  "main.vrb" 1770754322.66981 941 917786b259502d3b1da4efcd01c57fc4 "pdflatex"
   (generated)
   "main.aux"
   "main.log"

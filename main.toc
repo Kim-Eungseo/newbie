@@ -7,6 +7,6 @@
 \beamer@subsectionintoc {2}{2}{Storage}{33}{0}{2}
 \beamer@subsectionintoc {2}{3}{Network}{36}{0}{2}
 \beamer@sectionintoc {3}{Part 3. Training}{42}{0}{3}
-\beamer@subsectionintoc {3}{1}{Precision, HParams \& Data}{55}{0}{3}
-\beamer@sectionintoc {4}{Part 4. Inference}{56}{0}{4}
-\beamer@sectionintoc {5}{Part 5. Containers}{70}{0}{5}
+\beamer@subsectionintoc {3}{1}{Precision, HParams \& Data}{56}{0}{3}
+\beamer@sectionintoc {4}{Part 4. Inference}{57}{0}{4}
+\beamer@sectionintoc {5}{Part 5. Containers}{72}{0}{5}

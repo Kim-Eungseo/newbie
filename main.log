@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.10.18)  11 FEB 2026 05:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.10.18)  11 FEB 2026 05:11
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1056,23 +1056,29 @@ Overfull \vbox (26.53139pt too high) detected at line 494
 
 ] [43
 
-] [44
+]
+<images/parallelism.png, id=355, 827.09pt x 488.82625pt>
+File: images/parallelism.png Graphic file (type png)
+<use images/parallelism.png>
+Package pdftex.def Info: images/parallelism.png  used on input line 772.
+(pdftex.def)             Requested size: 348.83939pt x 206.17085pt.
+ [44
 
-] [45
+ <./images/parallelism.png>] [45
+
+] [46
 
 ]
-Overfull \vbox (15.51654pt too high) detected at line 858
- []
-
-[46
-
-]
-Overfull \vbox (1.71661pt too high) detected at line 893
+Overfull \vbox (15.51654pt too high) detected at line 865
  []
 
 [47
 
-] [48
+]
+Overfull \vbox (1.71661pt too high) detected at line 900
+ []
+
+[48
 
 ] [49
 
@@ -1080,22 +1086,22 @@ Overfull \vbox (1.71661pt too high) detected at line 893
 
 ] [51
 
+] [52
+
 ]
 \openout4 = `main.vrb'.
 
  (./main.vrb)
-Overfull \vbox (5.30206pt too high) detected at line 1025
- []
-
-[52
-
-]
-Overfull \vbox (15.89209pt too high) detected at line 1051
+Overfull \vbox (5.30206pt too high) detected at line 1032
  []
 
 [53
 
-] [54
+]
+Overfull \vbox (15.89209pt too high) detected at line 1058
+ []
+
+[54
 
 ] [55
 
@@ -1113,47 +1119,57 @@ Overfull \vbox (15.89209pt too high) detected at line 1051
 
 ] [62
 
+] [63
+
 ]
-Overfull \vbox (1.21661pt too high) detected at line 1267
+Overfull \vbox (1.21661pt too high) detected at line 1274
  []
 
-[63
-
-] [64
+[64
 
 ] [65
 
 ] [66
 
-] [67
-
-] [68
-
 ]
-Overfull \vbox (12.10211pt too high) detected at line 1408
- []
+<images/temperature.png, id=483, 1027.84pt x 366.36874pt>
+File: images/temperature.png Graphic file (type png)
+<use images/temperature.png>
+Package pdftex.def Info: images/temperature.png  used on input line 1328.
+(pdftex.def)             Requested size: 378.4285pt x 134.88905pt.
+ [67
 
-[69
+ <./images/temperature.png>] [68
+
+] [69
 
 ] [70
 
-] [71
+]
+Overfull \vbox (12.10211pt too high) detected at line 1423
+ []
+
+[71
 
 ] [72
 
 ] [73
 
-]
-Overfull \vbox (15.10211pt too high) detected at line 1494
- []
-
-[74
+] [74
 
 ] [75
 
-] [76
+]
+Overfull \vbox (15.10211pt too high) detected at line 1509
+ []
+
+[76
 
 ] [77
+
+] [78
+
+] [79
 
  </usr/share/texlive/texmf-dist/tex/latex/beamer/beamericonarticle.pdf>]
 \tf@nav=\write6
@@ -1171,21 +1187,21 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 7AF341501014C1D616753E4D2C7ADE54;1551.
+(rerunfilecheck)             Checksum: F9644496C404EE6EB23E1E595566F5E4;1551.
  ) 
 Here is how much of TeX's memory you used:
- 26397 strings out of 474222
- 527915 string characters out of 5748732
+ 26419 strings out of 474222
+ 528393 string characters out of 5748732
  1935975 words of memory out of 5000000
- 47860 multiletter control sequences out of 15000+600000
+ 47878 multiletter control sequences out of 15000+600000
  590580 words of font info for 149 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,15n,123p,1888b,758s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtb22.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbac.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbae.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbb2.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbb3.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbb4.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbb8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbb9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbba.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbbb.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbbc.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbc0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbc1.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbc2.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbc5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbc7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbc9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbcc.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbcd.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbce.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbd0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbd5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtbd6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtm22.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmac.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmad.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmae.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb1.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb2.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb3.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb4.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmb9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmba.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmbc.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmbd.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmbe.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc1.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc2.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc4.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmc9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmcc.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmcd.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmce.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmcf.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmd0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmd1.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmd2.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmd3.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmd5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmd6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/nanumtype1/nanumgtmd7.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfss0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfss1000.pfb>
-Output written on main.pdf (77 pages, 5165030 bytes).
+Output written on main.pdf (79 pages, 5290710 bytes).
 PDF statistics:
- 910 PDF objects out of 1000 (max. 8388607)
- 660 compressed objects within 7 object streams
- 172 named destinations out of 1000 (max. 500000)
- 169 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 925 PDF objects out of 1000 (max. 8388607)
+ 670 compressed objects within 7 object streams
+ 176 named destinations out of 1000 (max. 500000)
+ 179 words of extra memory for PDF output out of 10000 (max. 10000000)
 

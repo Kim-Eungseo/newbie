@@ -525,6 +525,11 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtmce.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtmc9.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtmb4.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtb22.tfm
+INPUT ./images/parallelism.png
+INPUT ./images/parallelism.png
+INPUT ./images/parallelism.png
+INPUT ./images/parallelism.png
+INPUT ./images/parallelism.png
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtm22.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtmcf.tfm
 OUTPUT main.vrb
@@ -535,6 +540,11 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtmcc.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtmc4.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmssbx10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmssbx10.tfm
+INPUT ./images/temperature.png
+INPUT ./images/temperature.png
+INPUT ./images/temperature.png
+INPUT ./images/temperature.png
+INPUT ./images/temperature.png
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtmb7.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtbc2.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/nanumtype1/nanumgtbd0.tfm
