@@ -1,0 +1,29 @@
+\frametitle{Gradient Accumulation}
+\textbf{Simulate larger batch size without more memory}
+
+  \vspace{0.3em}
+  \textbf{How it works:}
+  \begin{itemize}
+    \item Run forward + backward for N micro-batches
+    \item Accumulate gradients without optimizer step
+    \item After N steps, apply accumulated gradients once
+    \item Effective batch size = micro\_batch $\times$ N
+  \end{itemize}
+
+  \vspace{0.3em}
+  \textbf{Code example:}
+  \tiny
+\begin{verbatim}
+accumulation_steps = 4
+optimizer.zero_grad()
+for step, (input_data, target_data) in enumerate(dataloader):
+    outputs = model(input_data)
+    loss = criterion(outputs, target_data)
+    loss = loss / accumulation_steps  # Scale loss
+    loss.backward()                    # Accumulate gradients
+
+    if (step + 1) % accumulation_steps == 0:
+        optimizer.step()               # Update weights
+        optimizer.zero_grad()          # Reset gradients
+\end{verbatim}
+  \normalsize

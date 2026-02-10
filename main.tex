@@ -1,0 +1,1565 @@
+% !TeX program = lualatex
+% (권장) LuaLaTeX 또는 XeLaTeX로 컴파일하세요.
+% - Metropolis 테마가 없으면: TeX 배포판에 metropolis 패키지를 설치하거나,
+%   아래 \usetheme{metropolis} 줄을 주석 처리하고 기본 beamer 테마를 쓰면 됩니다.
+
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% ----- Theme: Metropolis (많이 쓰는 모던 Beamer 테마) -----
+\usetheme[
+  progressbar=frametitle,
+  numbering=fraction
+]{metropolis}
+
+% ----- Korean -----
+\usepackage{kotex} % 한글
+
+% ----- Packages -----
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+
+% ----- Metropolis tweaks -----
+\metroset{
+  block=fill,
+  titleformat=regular
+}
+
+% ----- Meta -----
+\title{ML Engineering Fundamentals}
+\author{김응서}
+\institute{SNU BI Lab}
+\date{\today}
+
+% PDF 메타/링크 색상
+\hypersetup{
+  colorlinks=true,
+  linkcolor=.,
+  urlcolor=blue
+}
+
+\begin{document}
+
+% ----- Title -----
+\maketitle
+
+% ----- Agenda -----
+\begin{frame}[allowframebreaks]{목차}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \setbeamertemplate{subsection in toc}[subsections numbered]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Part 1. Key Insights}
+
+\subsection{Basics}
+
+\begin{frame}{What's Important in the AI Race?}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \textbf{Training:}
+      \begin{enumerate}
+        \item How fast one can train a better model\\
+        {\small (first to market advantage)}
+        \item How much \$\$ was spent\\
+        {\small (do we still have money left?)}
+      \end{enumerate}
+    \column{0.48\textwidth}
+      \textbf{Inference:}
+      \begin{enumerate}
+        \item Fast latency\\
+        {\small (msec response times)}
+        \item Fast throughput\\
+        {\small (concurrent queries)}
+        \item How much \$\$ per user\\
+        {\small (can we scale?)}
+      \end{enumerate}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{What are the Needs of LLM Training?}
+  \begin{enumerate}
+    \item \textbf{Fast compute} massively dominated by matrix multiplications
+    \item \textbf{Fast enough} memory, IO, network and CPU to feed the compute
+  \end{enumerate}
+  
+  \vspace{1em}
+  \begin{alertblock}{생활 지혜}
+    가장 빠른 가속기에 돈 부으면서 다른 구성요소는 싼걸로 때우면, 돈만 낭비하는 걸 수도
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{What are the Workhorses of ML?}
+  \begin{itemize}
+    \item An \textbf{accelerator} or \textbf{processing unit} does most of the work
+    \item ML does a lot of parallel processing (SIMD)
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Available accelerators:}
+  \begin{itemize}
+    \item GPUs (NVIDIA, AMD)
+    \item TPUs (Google)
+    \item IPUs, FPGAs, HPUs, QPUs, RDUs
+    \item Recent CPUs (especially for inference)
+  \end{itemize}
+\end{frame}
+\subsection{Technology Needs}
+
+\begin{frame}{Can You Feed the Furnace Fast Enough?}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.45\textwidth}
+      \begin{figure}
+        \centering
+        \fbox{\parbox[c][0.42\textheight][c]{0.85\linewidth}{\centering \textbf{Steam locomotive fireman}\\[1em]The engine is great, but if the fireman isn't fast enough to shovel the coal in, the train won't move fast.}}
+        \caption*{Source: Wikimedia Commons}
+      \end{figure}
+    \column{0.50\textwidth}
+      \textbf{The bottleneck is in moving bits, not compute!}
+      \begin{itemize}
+        \item Accelerators: $\sim$2x faster every 2 years
+        \item Network \& memory: NOT!
+        \item IO can be another bottleneck
+        \item CPU is fine (enough cores)
+      \end{itemize}
+  \end{columns}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    계산 빠르다고 다는 아녀
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.9\textheight,keepaspectratio]{images/flops-bandwidth.png}
+    \caption*{\textbf{FLOPS vs Bandwidth}: Compute grows faster than memory bandwidth}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.9\textheight,keepaspectratio]{images/ai-and-memory-wall.png}
+    \caption*{\textbf{AI and Memory Wall}: The growing gap between compute and memory}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{What is TFLOPS?}
+  \begin{block}{Definition}
+    \textbf{TFLOPS} = \textbf{T}era \textbf{FLO}ating point \textbf{O}perations \textbf{P}er \textbf{S}econd
+  \end{block}
+  
+  \vspace{1em}
+  \begin{itemize}
+    \item One trillion (10$^{12}$) floating point operations per second
+    \item Key metric for measuring accelerator (GPU/TPU) performance
+  \end{itemize}
+  
+  \vspace{1em}
+  \textbf{Examples:}
+  \begin{itemize}
+    \item NVIDIA A100 (BF16): 312 TFLOPS
+    \item NVIDIA H100 (BF16): 989 TFLOPS
+    \item NVIDIA B200 (BF16): 2,250 TFLOPS
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{TFLOPS: Estimating Training Cost}
+  \textbf{Calculate time needed:}
+  \[
+    \text{time\_in\_secs} = \frac{\text{total\_tflops\_required}}{\text{tflops\_of\_compute\_unit}}
+  \]
+  
+  \vspace{0.5em}
+  \textbf{Example:} 604,800 secs = 7 days
+  
+  \vspace{1em}
+  \begin{enumerate}
+    \item Look at the cost for 7 days $\Rightarrow$ total \$\$ to train
+    \item Compare other proposals
+    \item Choose the best option
+  \end{enumerate}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    최대 TFLOPS는 보통 달성 불가능! MFU를 보는게 나음.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Model FLOPS Utilization (MFU)}
+  \textbf{How well is the accelerator utilized?}
+  
+  \vspace{0.5em}
+  \[
+    \text{MFU} = \frac{\text{actual\_TFLOPS}}{\text{advertised\_TFLOPS}}
+  \]
+  
+  \vspace{0.5em}
+  \textbf{Example:} 80B model on BF16@A100
+  \begin{itemize}
+    \item Single iteration: 624 TFLOPS in 4 secs $\Rightarrow$ 156 actual TFLOPS
+    \item A100 advertised: 312 TFLOPS
+    \item MFU: $156/312 = 0.5$ = \textbf{50\%}
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{block}{생활 지혜}
+    \begin{itemize}
+      \item NVIDIA GPUs: $>$50\% MFU on multi-node = 굿
+      \item If MFU is 50\%, training takes 2x longer than estimated
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Moving Bits: The Real Bottleneck}
+  \textbf{Why can't we achieve advertised TFLOPS?}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item Takes time to move data between accelerator memory and compute
+    \item Even more time from disk and other GPUs to accelerator memory
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Solutions:}
+  \begin{itemize}
+    \item Fused and custom kernels (\texttt{torch.compile}, flash attention)
+    \item Single GPU: only accelerator memory matters
+    \item Multiple GPUs: network becomes the bottleneck
+    \item Efficient frameworks overlap compute and comms
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Network Speed Comparison}
+  \textbf{NVIDIA NVLink (intra-node, unidirectional):}
+  
+  \vspace{0.5em}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{lrrrr}
+      \toprule
+      GPU & Compute & Speedup & Network & Speedup \\
+          & (TFLOPS) &        & (GBps)  &         \\
+      \midrule
+      V100 & 125  & 1x  & 150 & 1x \\
+      A100 & 312  & 2.5x & 300 & 2x \\
+      H100 & 989  & 8x  & 450 & 3x \\
+      B200 & 2250 & 18x & 900 & 6x \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{Recap: Key Issue}
+    Compute grows faster than network! Network is the bottleneck.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Intra-node vs Inter-node Network}
+  \textbf{Intra-node (within node):}
+  \begin{itemize}
+    \item Fast: NVIDIA NVLink 900 GBps (B200), 450 GBps (H100)
+    \item Intel Gaudi2: 2.1 TBps total
+    \item For Tensor/Sequence parallelism
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Inter-node (between nodes):}
+  \begin{itemize}
+    \item 200 Gbps to 6400 Gbps range
+    \item Originally 10x slower than intra-node
+    \item Now approaching intra-node speeds (800 GBps EFA)
+    \item Expect $\sim$80\% of advertised speed
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Storage Needs}
+  \textbf{Three distinct IO needs:}
+  \begin{enumerate}
+    \item \textbf{DataLoader feeding} - super fast read, sustained for hours/days
+    \item \textbf{Checkpoint writing} - super fast write, burst mode
+    \item \textbf{Codebase} - medium speed read/write, shared across nodes
+  \end{enumerate}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    You're being sold 80\% of what you paid. For reliable 100TB, rent 125TB!
+  \end{alertblock}
+
+\end{frame}
+
+\begin{frame}{CPU and CPU Memory (8 GPUs 기준)}
+  \textbf{CPU Memory needs:}
+  \begin{itemize}
+    \item 2-3 DL workers per accelerator (16-24 processes for 8 GPUs)
+    \item More memory if pulling data from cloud
+    \item Enough to load model if not loading to accelerator directly
+    \item For accelerator memory offloading - more is better!
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{CPU:}
+  \begin{itemize}
+    \item 대충 at least 30 cores (2-3 DL workers + 1 per GPU)
+    \item More cores for OS thread, Tokenization, Unzipping, etc.
+    \item Most compute happens on GPUs anyway
+  \end{itemize}
+\end{frame}
+
+\subsection{Instant ML Math}
+
+\begin{frame}{How Many GPUs Do You Need? (5초컷)}
+  \textbf{Training in half mixed-precision:}
+  \[
+    \text{GPUs} = \frac{\text{model\_size\_in\_B} \times 18 \times 1.25}{\text{gpu\_size\_in\_GB}}
+  \]
+  
+  \textbf{Inference in half precision:}
+  \[
+    \text{GPUs} = \frac{\text{model\_size\_in\_B} \times 2 \times 1.25}{\text{gpu\_size\_in\_GB}}
+  \]
+  
+  \vspace{0.5em}
+  \textbf{Example:} 80B model on 80GB GPUs
+  \begin{itemize}
+    \item Training: $80 \times 18 \times 1.25 / 80 = 23$ GPUs
+    \item Inference: $80 \times 2 \times 1.25 / 80 = 3$ GPUs
+  \end{itemize}
+  
+  \vspace{0.5em}
+  {\small * 이유는 후술할 예정}
+\end{frame}
+
+\section{Part 2. Hardware}
+
+\subsection{Accelerators}
+
+\begin{frame}{Accelerators - The Workhorses of ML}
+  \textbf{Evolution:}
+  \begin{itemize}
+    \item Started with GPUs
+    \item Now: TPUs, IPUs, FPGAs, HPUs, QPUs, RDUs, and more
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Two main workloads:}
+  \begin{itemize}
+    \item \textbf{Training} - one huge matmul per sequence
+    \item \textbf{Inference} - thousands of small matmuls one token at a time
+    \item \textbf{Finetuning} - same as training (unless LORA-style)
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{Key Difference}
+    Training requires 3-4x more matmuls than inference (forward + backward + recompute)
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{High-End Accelerator Reality (Q1 2026)}
+  \textbf{NVIDIA:} B200s/B300s/GB200 emerging, H100/H200 widely available
+  
+  \textbf{AMD:} MI325X widely available (Tier-2 clouds), MI355X emerging
+  
+  \textbf{Intel:} Gaudi2/Gaudi3 on Intel cloud
+  
+  \textbf{Amazon:} Trainium2 on AWS
+  
+  \textbf{Google:} TPUs (cloud only, vendor lock-in)
+  
+  \textbf{On-premises:} Cerebras WSE, SambaNova DataScale
+\end{frame}
+
+\begin{frame}[plain]{Physical Reality: 8xH100 Node}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth,height=0.8\textheight,keepaspectratio]{images/8x-h100-node.png}
+    \caption*{Dell PowerEdge XE9680 GPU Tray - This is what you're renting!}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{The Most Important Thing}
+  \begin{alertblock}{Not enough to buy the fastest accelerators!}
+    High ROI requires: (1) Fast training time, (2) Low total \$\$
+  \end{alertblock}
+  
+  \vspace{0.5em}
+  \textbf{Critical components for ROI:}
+  \begin{enumerate}
+    \item Network (most critical!)
+    \item Storage
+    \item CPU \& CPU memory (least critical)
+  \end{enumerate}
+  
+  \vspace{0.5em}
+  \begin{exampleblock}{생활 지혜}
+    If other components don't match the workload, expensive accelerators will idle!
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[plain]{NVIDIA A100 Spec Reference}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.85\textheight,keepaspectratio]{images/nvidia-a100-spec.png}
+    \caption*{Understanding accelerator specifications}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{TFLOPS: Key Performance Metric}
+  \begin{itemize}
+    \item Most ML work = matrix multiplication (multiply + sum)
+    \item \textbf{TFLOPS} = Trillions of Floating Point Operations Per Second
+    \item Higher = better (but beware of marketing!)
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Different precisions, different TFLOPS:}
+  \begin{itemize}
+    \item FP32 < TF32 < BF16/FP16 < FP8 < INT8
+    \item BF16 is 2x faster than TF32
+    \item FP8 is 2x faster than BF16
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    TFLOPS also depend on matrix size! See next slide.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[plain]{Matrix Size Matters!}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth,height=0.85\textheight,keepaspectratio]{images/nvidia-a100-matmul-tflops.png}
+    \caption*{A100 TFLOPS varies with matrix dimensions (tile/wave quantization effects)}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Theoretical TFLOPS Comparison (BF16)}
+  \small
+  \begin{table}
+    \centering
+    \begin{tabular}{lr}
+      \toprule
+      Accelerator & BF16 TFLOPS \\
+      \midrule
+      NVIDIA GB300/GB200 & 2500 \\
+      AMD MI355X & 2300 \\
+      NVIDIA B300/B200 & 2250 \\
+      Intel Gaudi3 & 1677 \\
+      AMD MI325X/MI300X & 1300 \\
+      NVIDIA H200/H100 & 989 \\
+      Intel Gaudi2 & 432 \\
+      NVIDIA A100 & 312 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  {\tiny * w/o sparsity. Most marketing uses w/ sparsity (~2x higher) - beware!}
+\end{frame}
+
+\begin{frame}{Reality: Maximum Achievable TFLOPS (MAMF)}
+  \textbf{Problem:} Theoretical peak TFLOPS are unachievable!
+  
+  \vspace{0.5em}
+  \small
+  \begin{table}
+    \centering
+    \begin{tabular}{lrrr}
+      \toprule
+      Accelerator & MAMF & Theory & Efficiency \\
+      \midrule
+      Intel Gaudi2 & 419 & 432 & 96.9\% \\
+      NVIDIA A100 & 271 & 312 & 86.9\% \\
+      NVIDIA H100 & 795 & 989 & 80.3\% \\
+      NVIDIA B200 & 1745 & 2250 & 77.6\% \\
+      Intel Gaudi3 & 1243 & 1677 & 74.1\% \\
+      AMD MI325X & 785 & 1300 & 60.4\% \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{0.3em}
+  {\tiny Use \texttt{mamf-finder.py} to measure your actual hardware!}
+\end{frame}
+
+\begin{frame}[plain]{Accelerator Efficiency Trend}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth,height=0.85\textheight,keepaspectratio]{images/maf-efficiency.png}
+    \caption*{Efficiency decreases as accelerators get faster (AMD blog)}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Memory: Size and Speed}
+  \textbf{HBM (High Bandwidth Memory):} 3D SDRAM
+  
+  \vspace{0.5em}
+  \small
+  \begin{table}
+    \centering
+    \begin{tabular}{lrr}
+      \toprule
+      Accelerator & Memory (GiB) & Bandwidth (TBps) \\
+      \midrule
+      AMD MI355X & 288 & 8.00 \\
+      AMD MI325X & 256 & 6.00 \\
+      AMD MI300X & 192 & 5.30 \\
+      NVIDIA B200 & 180 & 8.00 \\
+      NVIDIA H200 & 141 & 4.80 \\
+      Intel Gaudi3 & 128 & 3.70 \\
+      NVIDIA H100 & 80 & 3.35 \\
+      NVIDIA A100 & 80 & 2.00 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{0.3em}
+  More memory = better! Faster bandwidth = less compute idling!
+\end{frame}
+
+\begin{frame}{Power Consumption (TDP/TBP)}
+  \textbf{Higher TDP = more efficient sustained compute!}
+  
+  \vspace{0.5em}
+  \small
+  \begin{table}
+    \centering
+    \begin{tabular}{lr}
+      \toprule
+      Accelerator & Power (Watts) \\
+      \midrule
+      NVIDIA GB300 & 1400 \\
+      AMD MI355X & 1400 \\
+      NVIDIA GB200 & 1200 \\
+      AMD MI325X & 1000 \\
+      NVIDIA B200 & 1000 \\
+      Intel Gaudi3 & 900 \\
+      NVIDIA H200/H100 & 700 \\
+      AMD MI300X & 750 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{0.3em}
+  {\small Example: MI325X > MI300X efficiency due to 250W higher TDP}
+\end{frame}
+
+\begin{frame}{Key Vendors \& APIs}
+  \begin{description}
+    \item[NVIDIA] CUDA ecosystem - most mature, widest support
+    \item[AMD] ROCm - can run most CUDA code as-is! Easy switch from NVIDIA
+    \item[Intel Gaudi] Habana SynapseAI SDK - PyTorch/TensorFlow support
+    \item[Google TPU] Cloud-only, vendor lock-in, requires PyTorch XLA
+    \item[Amazon Trainium] AWS-only, PyTorch XLA
+  \end{description}
+  
+  \vspace{0.5em}
+  \begin{exampleblock}{생활 지혜}
+    AMD MI-series with ROCm = easiest alternative to NVIDIA!
+  \end{exampleblock}
+\end{frame}
+
+\subsection{Storage}
+
+\begin{frame}{Machine Learning IO Needs}
+  \textbf{3 distinct IO needs for training:}
+  \begin{enumerate}
+    \item \textbf{DataLoader feeding} - super fast read, sustained for hours/days
+    \item \textbf{Checkpoint writing} - super fast write, burst mode
+    \item \textbf{Codebase} - medium speed read/write, shared across nodes
+  \end{enumerate}
+  
+  \vspace{0.5em}
+  \begin{block}{생활 지혜}
+    제일 좋고 가장 빠른 걸로 통일한 솔루션은 비싸니까, 2-3개 다른 타입의 파티션으로 나눠서 구성하면 효율적
+  \end{block}
+\end{frame}
+
+\begin{frame}{Storage Reality Check}
+  \textbf{You're being sold 80\% of what you paid!}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item Physical disks get full before combined storage gets full
+    \item Rebalancing is costly and infrequent
+    \item At 90\% full, programs can fail at any time
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Solution:}
+  \begin{itemize}
+    \item Want 100TB reliable? Buy 125TB! (80\% of 125TB = 100TB)
+    \item GPFS doesn't have this issue (can use 100\%)
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{IO Concepts That Change Results (and Benchmarks)}
+  \textbf{Sequential vs Random:}
+  \begin{itemize}
+    \item \textbf{Sequential}: checkpoints, codebase load (streaming)
+    \item \textbf{Random}: shuffled dataset access, DB-like access, KV-cache offload
+  \end{itemize}
+
+  \vspace{0.5em}
+  \textbf{Direct vs Buffered IO:}
+  \begin{itemize}
+    \item \textbf{Buffered (default)}: OS page cache can make benchmarks look great
+    \item \textbf{Direct IO} (\texttt{O\_DIRECT}): bypass cache to measure real device/FS performance
+  \end{itemize}
+
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    IO 벤치마크는 캐시 끄고 돌려야 함. 페이지캐시빨 결과로 의사결정하면 안됨.
+  \end{alertblock}
+\end{frame}
+
+\subsection{Network}
+
+\begin{frame}{Why Network Speed Matters}
+  \textbf{The Real Bottleneck:}
+  \begin{itemize}
+    \item Training requires syncing gradients between GPUs
+    \item For 2B param model: need to send 16GB of data per iteration!
+    \item Network speed can make or break your training speed
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Two types of networking:}
+  \begin{itemize}
+    \item \textbf{Intra-node} (within node): Super fast! NVLink, XGMI
+    \item \textbf{Inter-node} (between nodes): Used to be 10x slower, now catching up
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{Key Issue}
+    The whole ensemble communicates at the speed of the slowest link!
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Intra-node Network Comparison}
+  \textbf{All-to-all bandwidth (GBps, unidirectional):}
+  
+  \vspace{0.5em}
+  \small
+  \begin{table}
+    \centering
+    \begin{tabular}{lrr}
+      \toprule
+      Interconnect & Accelerator & GBps \\
+      \midrule
+      NVIDIA NVLink 5 & B200 & 900 \\
+      Intel Gaudi3 & Gaudi3 & 600 \\
+      NVIDIA NVLink 4 & H100 & 450 \\
+      AMD XGMI & MI325X & 448 \\
+      NVIDIA NVLink 3 & A100 & 300 \\
+      Intel Gaudi2 & Gaudi2 & 300 \\
+      PCIe 5 & & 63 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{0.3em}
+  PCIe is 5-10x slower than specialized interconnects!
+\end{frame}
+
+\begin{frame}{Inter-node Network Comparison}
+  \textbf{Total bandwidth per node (GBps, unidirectional):}
+  
+  \vspace{0.5em}
+  \small
+  \begin{table}
+    \centering
+    \begin{tabular}{lrr}
+      \toprule
+      Interconnect & Config & Total GBps \\
+      \midrule
+      AWS EFA v4 & 16x400 Gbps & 800 \\
+      InfiniBand XDR800 & 8x800 Gbps & 800 \\
+      Intel Gaudi3 & 24x200 Gbps & 600 \\
+      NVIDIA Quantum-2 IB & 8x400 Gbps & 400 \\
+      AWS EFA v3 & 16x200 Gbps & 400 \\
+      AWS EFA v2 & 32x100 Gbps & 400 \\
+      Intel Gaudi2 & 24x100 Gbps & 300 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{0.3em}
+  {\small Inter-node is catching up to intra-node speeds!}
+\end{frame}
+
+\begin{frame}{Network Reality: It's Not What You Paid For}
+  \textbf{Real throughput ≠ Advertised spec}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item Best case: 80-90\% of advertised speed
+    \item Depends heavily on payload size
+    \item Small payloads = much lower throughput
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Example: A100 NVLink (300 GBps advertised)}
+  \begin{itemize}
+    \item 32KB payload: 1.31 GBps (0.4\%)
+    \item 536MB payload: 222.72 GBps (74\%)
+    \item 17GB payload: 234.89 GBps (78\%)
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Network Collectives: The Building Blocks}
+  \textbf{How do GPUs communicate?}
+  
+  \vspace{0.3em}
+  \begin{description}
+    \item[Broadcast] 1 GPU $\rightarrow$ All GPUs (copy same data)
+    \item[Scatter] 1 GPU $\rightarrow$ All GPUs (each gets different chunk)
+    \item[Gather] All GPUs $\rightarrow$ 1 GPU (collect all chunks)
+    \item[All-Gather] All GPUs $\rightarrow$ All GPUs (everyone gets all data)
+    \item[Reduce] All GPUs $\rightarrow$ 1 GPU (sum/avg gradients)
+    \item[All-Reduce] All GPUs $\rightarrow$ All GPUs (sum + broadcast)
+    \item[Reduce-Scatter] All GPUs $\rightarrow$ All GPUs (reduce + distribute)
+  \end{description}
+  
+  \vspace{0.3em}
+  \begin{block}{TMI}
+    DDP uses \textbf{all-reduce} for gradients. ZeRO uses \textbf{all-gather} + \textbf{reduce-scatter}.
+  \end{block}
+\end{frame}
+
+\begin{frame}{All-Reduce: The Most Important Collective}
+  \textbf{Used everywhere in distributed training!}
+  
+  \vspace{0.3em}
+  \textbf{What it does:}
+  \begin{enumerate}
+    \item Each GPU sends its gradient data
+    \item Sum (or avg) all gradients together
+    \item Result is sent back to every GPU
+  \end{enumerate}
+  
+\end{frame}
+
+\section{Part 3. Training}
+
+\begin{frame}{Model Parallelism: Why We Need It}
+  \textbf{Problem:} Models are too big to fit on single GPU!
+  
+  \vspace{0.5em}
+  \textbf{Three main strategies:}
+  \begin{enumerate}
+    \item \textbf{Data Parallelism (DP/DDP)} - replicate model, split data
+    \item \textbf{Tensor Parallelism (TP)} - split model layers horizontally
+    \item \textbf{Pipeline Parallelism (PP)} - split model layers vertically
+  \end{enumerate}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    Most large model training uses a combination of all three!
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Data Parallelism (DP)}
+  \textbf{How it works:}
+  \begin{itemize}
+    \item Each GPU has a full copy of the model
+    \item Each GPU processes different data
+    \item Sync gradients at the end of each iteration
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Pros \& Cons:}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \textbf{Pros:}
+      \begin{itemize}
+        \item Simple to implement
+        \item Good GPU utilization
+        \item Minimal overhead
+      \end{itemize}
+    \column{0.48\textwidth}
+      \textbf{Cons:}
+      \begin{itemize}
+        \item Model must fit on 1 GPU
+        \item Gradient sync overhead
+        \item Memory replicated
+      \end{itemize}
+  \end{columns}
+  
+  \vspace{0.5em}
+  \begin{exampleblock}{생활 지혜}
+    DP is the simplest - use it if your model fits on 1 GPU!
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{ZeRO: Memory-Efficient Data Parallelism}
+  \textbf{ZeRO (Zero Redundancy Optimizer) - DeepSpeed's innovation}
+  
+  \vspace{0.5em}
+  \textbf{Three stages of memory savings:}
+  \begin{itemize}
+    \item \textbf{ZeRO-1}: Partition optimizer states (4x memory reduction)
+    \item \textbf{ZeRO-2}: Partition gradients (8x memory reduction)
+    \item \textbf{ZeRO-3}: Partition model weights (linear with \#GPUs)
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Example: 7B model on 8x 80GB GPUs}
+  \begin{itemize}
+    \item DDP: Can't fit! (needs ~126GB per GPU)
+    \item ZeRO-3: Easy fit! (~16GB per GPU)
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{block}{생활 지혜}
+    ZeRO-3 is magic for fitting large models! But adds comms overhead.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Tensor Parallelism (TP)}
+  \textbf{Split model weights across GPUs horizontally}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item Split attention and MLP layers across GPUs
+    \item Each GPU computes part of the layer
+    \item Requires all-reduce after each layer
+    \item \textbf{TP degree} = number of GPUs splitting each layer
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Pros \& Cons:}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \textbf{Pros:}
+      \begin{itemize}
+        \item Fits larger models
+        \item Good for inference too
+        \item Can reduce memory
+      \end{itemize}
+    \column{0.48\textwidth}
+      \textbf{Cons:}
+      \begin{itemize}
+        \item High comms overhead
+        \item Needs fast intra-node
+        \item Limited by node size
+      \end{itemize}
+  \end{columns}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    TP degree usually ≤ 8 due to comms overhead. Needs NVLink speed!
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Pipeline Parallelism (PP)}
+  \textbf{Split model layers across GPUs vertically}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item GPU 0: layers 0-7, GPU 1: layers 8-15, etc.
+    \item Process multiple micro-batches in parallel
+    \item Reduces memory per GPU
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Pros \& Cons:}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \textbf{Pros:}
+      \begin{itemize}
+        \item Low comms (P2P only)
+        \item Scales to many GPUs
+        \item Works inter-node
+      \end{itemize}
+    \column{0.48\textwidth}
+      \textbf{Cons:}
+      \begin{itemize}
+        \item Pipeline bubble waste
+        \item Complex to tune
+        \item Needs micro-batching
+      \end{itemize}
+  \end{columns}
+  
+  \vspace{0.5em}
+  \begin{exampleblock}{생활 지혜}
+    PP is great for very large models across many nodes!
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Combining Parallelism Strategies}
+  \textbf{Real world: Use all three together!}
+  
+  \vspace{0.5em}
+  \textbf{Example: GPT-3 175B on 1024 GPUs}
+  \begin{itemize}
+    \item TP=8 within each node (NVLink fast)
+    \item PP=16 across nodes (slower inter-node)
+    \item DP=8 data parallel replicas
+    \item Total: 8 × 16 × 8 = 1024 GPUs
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{block}{생활 지혜}
+    \begin{itemize}
+      \item TP: within node (need fast network)
+      \item PP: across nodes (tolerate slower network)
+      \item DP/ZeRO: for scaling and memory efficiency
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Anatomy of Model's Memory: 18 Bytes Rule}
+  \textbf{Why $\times 18$ in the GPU formula?}
+  
+  \vspace{0.3em}
+  Mixed precision (AdamW) training needs \textbf{18 bytes per parameter}:
+  
+  \vspace{0.3em}
+  \small
+  \begin{tabular}{lr}
+    \toprule
+    Component & Bytes per param \\
+    \midrule
+    Model weights (fp32 master copy) & 4 \\
+    Model weights (bf16 working copy) & 2 \\
+    Gradients (fp32) & 4 \\
+    AdamW state: momentum (fp32) & 4 \\
+    AdamW state: variance (fp32) & 4 \\
+    \midrule
+    \textbf{Total} & \textbf{18} \\
+    \bottomrule
+  \end{tabular}
+  \normalsize
+  
+  \vspace{0.5em}
+  \textbf{Example:} 7B model $\Rightarrow$ $7 \times 18 = 126$ GB just for weights+optim+grads!
+\end{frame}
+
+\begin{frame}{Activation Memory: The Hidden Cost}
+  \textbf{Forward activations also consume GPU memory!}
+  
+  \vspace{0.3em}
+  \begin{itemize}
+    \item Grows with: batch size $\times$ sequence length $\times$ hidden size
+    \item Per layer: $\sim$20-50 copies of hidden states tensor
+    \item Logits: $4 \times$ bs $\times$ seqlen $\times$ vocab\_size (huge!)
+    \item {\small Activations scale with batch size and sequence length}
+  \end{itemize}
+  
+  \vspace{0.3em}
+  \textbf{Example: Llama-3.1-8B (bf16, bs=1, seqlen=32K)}
+  \begin{itemize}
+    \item W/o gradient checkpointing: $\sim$240 GB (impossible!)
+    \item W/ gradient checkpointing: $\sim$31 GB (manageable)
+  \end{itemize}
+  
+  \vspace{0.3em}
+  \begin{alertblock}{생활 지혜}
+    Gradient checkpointing은 거의 항상 켜야 함! Forward를 2번 돌리는 대신 메모리 8x 절약.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Key Training Concepts}
+  \textbf{Speed vs Memory optimization:}
+  
+  \vspace{0.3em}
+  \small
+  \begin{tabular}{lcc}
+    \toprule
+    Method & Speed & Memory \\
+    \midrule
+    Gradient accumulation & $\checkmark$ & $\checkmark$ \\
+    Gradient checkpointing & ($\times$)* & $\checkmark$ \\
+    Mixed precision (BF16) & $\checkmark$ & -- \\
+    Flash Attention & $\checkmark$ & $\checkmark$ \\
+    DeepSpeed ZeRO & -- & $\checkmark$ \\
+    Larger batch size & $\checkmark$ & -- \\
+    \bottomrule
+  \end{tabular}
+  \normalsize
+  
+  \vspace{0.3em}
+  {\small * Gradient checkpointing slows down per-iteration, but enables larger BS $\Rightarrow$ net speedup}
+  
+  \vspace{0.3em}
+  \begin{alertblock}{생활 지혜}
+    Training optimization is all about balancing: speed vs memory vs cost!
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{Gradient Accumulation}
+  \textbf{Simulate larger batch size without more memory}
+  
+  \vspace{0.3em}
+  \textbf{How it works:}
+  \begin{itemize}
+    \item Run forward + backward for N micro-batches
+    \item Accumulate gradients without optimizer step
+    \item After N steps, apply accumulated gradients once
+    \item Effective batch size = micro\_batch $\times$ N
+  \end{itemize}
+  
+  \vspace{0.3em}
+  \textbf{Code example:}
+  \tiny
+\begin{verbatim}
+accumulation_steps = 4
+optimizer.zero_grad()
+for step, (input_data, target_data) in enumerate(dataloader):
+    outputs = model(input_data)
+    loss = criterion(outputs, target_data)
+    loss = loss / accumulation_steps  # Scale loss
+    loss.backward()                    # Accumulate gradients
+    
+    if (step + 1) % accumulation_steps == 0:
+        optimizer.step()               # Update weights
+        optimizer.zero_grad()          # Reset gradients
+\end{verbatim}
+  \normalsize
+\end{frame}
+
+\begin{frame}{Gradient Checkpointing}
+  \textbf{Trade compute for memory (recomputation)}
+  
+  \vspace{0.5em}
+  \textbf{How it works:}
+  \begin{itemize}
+    \item Don't save all activations during forward pass
+    \item Only save checkpoints at certain layers
+    \item During backward, recompute activations on-the-fly
+    \item Saves 8-10x memory at cost of 20-30\% slower iteration
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{When to use:}
+  \begin{itemize}
+    \item Model doesn't fit in memory (OOM errors)
+    \item Want to use longer sequences or larger batch size
+    \item Compute is cheap, memory is expensive
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    거의 항상 켜야 함! 20\% slower per iteration이지만, 2-4x larger batch로 net speedup!
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Fault Tolerance \& Checkpointing}
+  \textbf{Large training = guaranteed failures!}
+  
+  \vspace{0.3em}
+  \begin{itemize}
+    \item Hardware failures: GPU, network, storage
+    \item Software crashes: OOM, NaN, bugs
+    \item The larger the cluster, the more frequent the failures
+  \end{itemize}
+  
+  \vspace{0.3em}
+  \textbf{Checkpointing strategies:}
+  \begin{itemize}
+    \item Save model + optimizer + scheduler + RNG states
+    \item Save to fast local NVME, then async offload to cloud
+    \item Keep last N checkpoints locally for fast resume
+    \item Typical: checkpoint every 10-60 min
+  \end{itemize}
+  
+  \vspace{0.3em}
+  \begin{exampleblock}{생활 지혜}
+    체크포인트 안 하면 하루 돌린 학습을 다 날릴 수 있음! Super fast write가 필요한 이유.
+  \end{exampleblock}
+\end{frame}
+
+\subsection{Precision, HParams \& Data}
+
+\begin{frame}{Training Dtypes: Speed vs Stability}
+  \textbf{Common dtype progression:}
+  \begin{itemize}
+    \item FP32 (stable, slow)
+    \item TF32 (Ampere+): FP32-like workflow, much faster matmul
+    \item BF16 mixed precision: \textbf{LLM training default} (more stable than FP16)
+    \item FP8 mixed precision: faster, but needs careful recipes (e.g., TE/AMAX scaling)
+  \end{itemize}
+
+  \vspace{0.5em}
+  \small
+  \begin{table}
+    \centering
+    \begin{tabular}{lr}
+      \toprule
+      A100 theoretical (no sparsity) & TFLOPS \\
+      \midrule
+      FP32 & 19.5 \\
+      TF32 & 156 \\
+      BF16/FP16 & 312 \\
+      FP8/INT8 & 624 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  \normalsize
+\end{frame}
+
+\section{Part 4. Inference}
+
+\begin{frame}{Inference: Two Stages}
+  \textbf{Prefill and Decode}
+  
+  \vspace{0.5em}
+  \textbf{1. Prefill Stage:}
+  \begin{itemize}
+    \item Process entire prompt at once (parallel)
+    \item Cache intermediate states (KV cache)
+    \item Fast! Even 1k tokens processed quickly
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{2. Decode Stage:}
+  \begin{itemize}
+    \item Generate new tokens one at a time (sequential)
+    \item Based on all previous tokens
+    \item Slow! This is the bottleneck
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{Key Insight}
+    Decoding can't be parallelized - it's inherently sequential!
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Key Performance Metrics}
+  \textbf{User Experience Metrics:}
+  
+  \vspace{0.5em}
+  \begin{description}
+    \item[TTFT] Time To First Token - how fast user sees response
+    \item[TPOT] Time Per Output Token - generation speed per token
+    \item[TPS] Tokens Per Second - inverse of TPOT (easier to think about)
+  \end{description}
+  
+  \vspace{0.5em}
+  \textbf{Human reading speed:}
+  \begin{itemize}
+    \item Subvocal: 250 WPM ≈ 6 TPS (TPOT: 0.16s)
+    \item Auditory: 450 WPM ≈ 11 TPS (TPOT: 0.089s)
+    \item Visual: 700 WPM ≈ 19 TPS (TPOT: 0.057s)
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{block}{생활 지혜}
+    Target 20 TPS to keep up with fast readers!
+  \end{block}
+\end{frame}
+
+\begin{frame}{KV Cache: The Memory Hog}
+  \textbf{Why KV cache?}
+  \begin{itemize}
+    \item Don't want to recalculate past tokens each time
+    \item Cache Key and Value for all previous tokens
+    \item Grows with sequence length and batch size
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Example: Llama-3.1-8B (bf16)}
+  \begin{itemize}
+    \item 1 token = 0.131 MB
+    \item 1024 tokens (batch=1) = 134 MB
+    \item 1024 tokens (batch=128) = 17.2 GB
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    KV cache is memory-bound! Smaller cache = faster generation.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Attention Mechanisms: MHA vs GQA vs MQA}
+  \textbf{Evolution to save KV cache memory:}
+  
+  \vspace{0.5em}
+  \begin{description}
+    \item[MHA] Multi-Head Attention - original, uses most memory
+    \item[GQA] Grouped-Query Attention - groups share KV (4x less memory)
+    \item[MQA] Multi-Query Attention - all share 1 KV (32x less memory)
+    \item[MLA] Multi-Latent Attention - compress KV into latent (DeepSeek v3)
+  \end{description}
+  
+  \vspace{0.5em}
+  \textbf{Trade-off:}
+  \begin{itemize}
+    \item MHA: Best quality, most memory
+    \item GQA: Good balance (Llama-3 uses this!)
+    \item MQA: Fastest, least memory, slightly lower quality
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Batching Strategies}
+  \textbf{Static Batching (naive):}
+  \begin{itemize}
+    \item Batch N queries together, process in parallel
+    \item All must wait for longest to finish
+    \item Example: 3 queries (10, 50, 100 tokens) $\Rightarrow$ all wait 100 steps
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Continuous Batching (smart):}
+  \begin{itemize}
+    \item Still process batch in parallel each step!
+    \item But dynamically adjust batch: remove done, add new
+    \item Example: Step 10 (query 1 done) $\Rightarrow$ add query 4 to batch
+    \item GPU stays full, no wasted slots waiting
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Paged Attention}
+  \textbf{Inspired by OS virtual memory paging}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item Treat GPU memory like OS memory
+    \item Dynamic allocation of KV cache
+    \item Prevents memory fragmentation
+    \item Much better GPU utilization
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Benefits:}
+  \begin{itemize}
+    \item Fit more requests in same memory
+    \item Higher throughput
+    \item More efficient batching
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{block}{생활 지혜}
+    vLLM pioneered this - now standard in inference frameworks!
+  \end{block}
+\end{frame}
+
+\begin{frame}{Speculative Decoding}
+  \textbf{Use small draft model to speed up large model}
+  
+  \vspace{0.5em}
+  \textbf{How it works:}
+  \begin{enumerate}
+    \item Small model generates N tokens (fast)
+    \item Large model verifies all N at once (batch)
+    \item If matches: saved time! If not: retry
+  \end{enumerate}
+  
+  \vspace{0.5em}
+  \textbf{When it works best:}
+  \begin{itemize}
+    \item Translation, summarization, document QA
+    \item Tasks with predictable outputs
+    \item Greedy decoding or low temperature
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    Can achieve 2-3x speedup for input-grounded tasks!
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Decoding Methods}
+  \textbf{How does the model choose the next token?}
+  
+  \vspace{0.3em}
+  \begin{description}
+    \item[Greedy] Always pick highest probability token\\
+    {\small Fast but repetitive, can loop}
+    \item[Beam Search] Track top-K paths simultaneously\\
+    {\small Better quality but K$\times$ slower and more memory}
+    \item[Top-K Sampling] Pick randomly from top K tokens\\
+    {\small More diverse, controlled randomness}
+    \item[Top-p (Nucleus)] Pick from tokens summing to probability p\\
+    {\small Adaptive K -- fewer candidates when model is confident}
+  \end{description}
+  
+  \vspace{0.3em}
+  \begin{block}{생활 지혜}
+    Top-p + Temperature = 가장 많이 쓰는 조합!
+  \end{block}
+\end{frame}
+
+\begin{frame}{Temperature: Controlling Randomness}
+  \textbf{$\text{scaled\_logits} = \text{logits} / \text{temperature}$}
+  
+  \vspace{0.3em}
+  \begin{description}
+    \item[$t = 0$] = Greedy decoding (no randomness)
+    \item[$0 < t < 1$] Sharper distribution (more focused, precise)
+    \item[$t = 1$] Original distribution (balanced)
+    \item[$t > 1$] Flatter distribution (more creative, random)
+  \end{description}
+  
+  \vspace{0.3em}
+  \textbf{Use cases:}
+  \begin{itemize}
+    \item Code generation: $t \approx 0.0$--$0.2$ (precise)
+    \item General chat: $t \approx 0.7$--$0.9$ (balanced)
+    \item Creative writing: $t \approx 1.0$--$1.5$ (diverse)
+  \end{itemize}
+  
+  \vspace{0.3em}
+  \begin{alertblock}{생활 지혜}
+    Temperature는 Top-p sampling에만 실질적 영향! Greedy/Beam/Top-K에는 순서가 안 바뀜.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Guided / Structured Generation}
+  \textbf{Goal:} JSON, SQL, schema-constrained output을 ``수정''이 아니라 ``처음부터'' 맞게 생성
+
+  \vspace{0.5em}
+  \textbf{How it works (conceptually):}
+  \begin{itemize}
+    \item 다음 token 후보 중에서 \textbf{스키마에 맞는 token subset}만 허용
+    \item 그 subset 안에서 확률이 가장 높은 token을 선택
+  \end{itemize}
+
+  \vspace{0.5em}
+  \textbf{Trade-offs:}
+  \begin{itemize}
+    \item 장점: invalid JSON 같은 실패를 크게 줄임
+    \item 단점: decode가 느려질 수 있음 (제약이 복잡할수록)
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Inference Memory Anatomy}
+  \textbf{Three components:}
+  
+  \vspace{0.3em}
+  \begin{enumerate}
+    \item \textbf{Model Weights:}
+    \begin{itemize}
+      \item fp32: 4 bytes $\times$ params
+      \item bf16: 2 bytes $\times$ params
+      \item int8: 1 byte $\times$ params
+      \item int4: 0.5 bytes $\times$ params
+    \end{itemize}
+    \item \textbf{KV Cache:} grows with batch $\times$ seq length
+    \item \textbf{Activation Memory:} temporary processing memory
+  \end{enumerate}
+  
+  \vspace{0.3em}
+  \textbf{Example: Llama-3.1-8B in bf16}
+  \begin{itemize}
+    \item Weights: $2 \times 8\text{B} = 16$ GB
+    \item KV cache (batch=128, 1K tokens): $\sim$17 GB
+    \item Total: $\sim$33+ GB (fits on 1x 80GB GPU)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Online vs Offline Inference}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \textbf{Online (Interactive):}
+      \begin{itemize}
+        \item Real-time user queries
+        \item Chatbots, search, APIs
+        \item Needs: low TTFT, low latency
+        \item Always uses inference server
+      \end{itemize}
+    \column{0.48\textwidth}
+      \textbf{Offline (Batch):}
+      \begin{itemize}
+        \item Hundreds/thousands of prompts
+        \item Benchmarks, synthetic data
+        \item Needs: high throughput
+        \item Server often not needed
+      \end{itemize}
+  \end{columns}
+  
+  \vspace{0.5em}
+  \begin{block}{생활 지혜}
+    Online: TTFT와 latency 최적화! Offline: throughput 최적화!\\
+    같은 하드웨어에서도 세팅이 완전히 다름.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Popular Inference Frameworks}
+  \textbf{Top choices as of 2025:}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item \textbf{vLLM} - most popular, great performance, paged attention
+    \item \textbf{SGLang} - fast, good for structured output
+    \item \textbf{TensorRT-LLM} - NVIDIA optimized, C++ based, complex
+    \item \textbf{TGI} - HuggingFace, easy integration
+    \item \textbf{DeepSpeed-FastGen} - from DeepSpeed team
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{exampleblock}{How to choose?}
+    \begin{enumerate}
+      \item Does it support your model \& features?
+      \item Permissive license? (Apache 2.0 recommended)
+      \item Active community \& contributors?
+      \item Can you modify it if needed? (Python vs C++)
+      \item Does it support your accelerator? (NVIDIA lock-in?)
+    \end{enumerate}
+  \end{exampleblock}
+\end{frame}
+
+\section{Part 5. Containers}
+
+\begin{frame}{Container?}
+  \textbf{격리되고 독립된 리눅스 환경을 보장하는 프로세스}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item Isolated Linux environment (pivot-root, namespace, overlay filesystem, cgroup)
+    \item Required files for application (binaries, libraries, configs, etc.)
+    \item Can run anywhere with container runtime (on-premises/cloud)
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Why Containers for ML?}
+  \textbf{Reproducibility and Portability}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item Package code + dependencies + environment together
+    \item "Works on my machine" $\Rightarrow$ works everywhere
+    \item Easy to share and deploy
+    \item Isolate different projects with conflicting dependencies
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Why containers matter for ML:}
+  \begin{itemize}
+    \item CUDA, cuDNN, PyTorch versions must match
+    \item System libraries (NCCL, MPI) are critical
+    \item Moving between dev/cloud/production environments
+    \item Multi-node training requires identical environments
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{NVIDIA Container Toolkit}
+  \textbf{GPU access in containers}
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item Containers need special setup to access GPUs
+    \item NVIDIA Container Toolkit provides GPU support
+    \item Automatically mounts CUDA drivers and libraries
+    \item Works with Docker and Kubernetes
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Running with GPU:}
+  \begin{itemize}
+    \item Docker: \texttt{docker run --gpus all ...}
+    \item Automatically detects and uses available GPUs
+    \item No need to manually install CUDA inside container
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    항상 NVIDIA 공식 base image 사용! (nvcr.io/nvidia/pytorch:xx.xx-py3)
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Docker Overlay Filesystem}
+  \textbf{Layered storage system for efficient image management}
+  
+  \vspace{0.5em}
+  \textbf{How it works:}
+  \begin{itemize}
+    \item Images are built in layers (each Dockerfile command = 1 layer)
+    \item Layers are stacked on top of each other
+    \item Lower layers are read-only, top layer is writable
+    \item Multiple containers can share the same base layers
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Benefits:}
+  \begin{itemize}
+    \item Space efficient: shared layers across images
+    \item Fast builds: only rebuild changed layers
+    \item Fast deployment: pull only new/changed layers
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{exampleblock}{Example}
+    10 containers from same PyTorch image $\Rightarrow$ base image stored once!
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Docker Image Layers in Practice}
+  \textbf{Layer structure example:}
+  
+  \vspace{0.3em}
+  \small
+  \begin{enumerate}
+    \item \textbf{Base OS layer} (Ubuntu 22.04) - 80 MB
+    \item \textbf{CUDA layer} (CUDA 12.1) - 3 GB
+    \item \textbf{cuDNN layer} (cuDNN 8.9) - 500 MB
+    \item \textbf{PyTorch layer} (PyTorch 2.1) - 2 GB
+    \item \textbf{Your dependencies} (pip install) - 500 MB
+    \item \textbf{Your code} (COPY train.py) - 10 MB
+    \item \textbf{Container runtime layer} (writable) - changes only
+  \end{enumerate}
+  \normalsize
+  
+  \vspace{0.5em}
+  \begin{alertblock}{생활 지혜}
+    코드 변경 시 layer 6만 rebuild! 1-5는 캐시 재사용 $\Rightarrow$ 빠른 빌드!
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Container Best Practices}
+  \textbf{Image size optimization:}
+  \begin{itemize}
+    \item Use official NVIDIA base images (already optimized)
+    \item Multi-stage builds to reduce final size
+    \item Clean up pip cache: \texttt{pip install --no-cache-dir}
+    \item Don't include datasets in image (mount as volume)
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \begin{block}{생활 지혜}
+    Base image 20GB는 정상! CUDA + cuDNN + PyTorch 다 포함이라 큼.
+  \end{block}
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{참고문헌}
+  \begin{thebibliography}{99}
+    \bibitem{bekman2024mlengineering}
+    Bekman, Stas. (2023--2026).
+    \textbf{Machine Learning Engineering Open Book}.
+    Stasosphere Online Inc.
+    \url{https://github.com/stas00/ml-engineering}
+
+    \bibitem{jung2026container}
+    정환열. (2026).
+    \textbf{Container Deep Dive}.
+    IT Medical Center, JADECROSS.
+    coordinatorj@jadecross.com
+
+    \bibitem{pytorch-randomness}
+    PyTorch Documentation.
+    \textbf{Reproducibility (Randomness)}.
+    \url{https://pytorch.org/docs/stable/notes/randomness.html}
+
+    \bibitem{pytorch-tf32}
+    PyTorch Documentation.
+    \textbf{TensorFloat-32 (TF32) on Ampere and later devices}.
+    \url{https://pytorch.org/docs/stable/notes/cuda.html}
+
+    \bibitem{hf-accelerate-main-process-first}
+    Hugging Face Accelerate Documentation.
+    \textbf{Accelerator.main\_process\_first}.
+    \url{https://huggingface.co/docs/accelerate/}
+  \end{thebibliography}
+\end{frame}
+
+\end{document}

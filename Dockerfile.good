@@ -1,0 +1,14 @@
+FROM alpine:3.19
+
+WORKDIR /workspace
+
+RUN apk add --no-cache \
+    texlive \
+    texlive-luatex \
+    texmf-dist-fontsextra \
+    python3 \
+    py3-pip
+
+COPY main.tex /workspace/
+
+CMD ["lualatex", "main.tex"]
